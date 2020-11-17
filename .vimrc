@@ -1,57 +1,67 @@
-" URL: http://vim.wikia.com/wiki/Example_vimrc
+" no vi-compatible
 set nocompatible
-filetype indent plugin on
-syntax on
-set hidden
-set wildmenu
-set showcmd
+filetype indent on
+" always show status bar
+set ls=2
+
+" incremental search
+set incsearch
+" highlighted search results
 set hlsearch
-set nomodeline
-set ignorecase
-set smartcase
 
-set backspace=indent,eol,start
+" syntax highlight on
+syntax on
 
-set autoindent
+" better backup, swap and undos storage for vim (nvim has nice ones by
+" default)
+set directory=~/.vim/dirs/tmp     " directory to place swap files in
+set backup                        " make backup files
+set backupdir=~/.vim/dirs/backups " where to put backup files
+set undofile                      " persistent undos - undo after you re-open the file
+set undodir=~/.vim/dirs/undos
+set viminfo+=n~/.vim/dirs/viminfo
+" create needed directories if they don't exist
+if !isdirectory(&backupdir)
+    call mkdir(&backupdir, "p")
+endif
+if !isdirectory(&directory)
+    call mkdir(&directory, "p")
+endif
+if !isdirectory(&undodir)
+    call mkdir(&undodir, "p")
+endif
 
-set nostartofline
+" tabs and spaces handling
+set expandtab
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
 
-set ruler
-
-set laststatus=2
-
-set confirm
-
-set visualbell
-
-set t_vb=
-
-set mouse=a
-
-set cmdheight=2
-
+" show line numbers
 set nu rnu
 
-set notimeout ttimeout ttimeoutlen=200
+" remove ugly vertical lines on window division
+set fillchars+=vert:\ 
 
-set pastetoggle=<F11>
+" when scrolling, keep cursor 3 lines away from screen border
+set scrolloff=3
 
+" clear search results
+nnoremap <silent> // :noh<CR>
 
-set shiftwidth=4
-set softtabstop=4
-set expandtab
+" clear empty spaces at the end of lines on save of python files
+autocmd BufWritePre *.py :%s/\s\+$//e
 
-"------------------------------------------------------------
-" Mappings {{{1
-"
-" Useful mappings
+" fix problems with uncommon shells (fish, xonsh) and plugins running commands
+" (neomake, ...)
+set shell=/bin/bash 
 
-" Map Y to act like D and C, i.e. to yank until EOL, rather than act as yy,
-" which is the default
-map Y y$
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
 
-" Map <C-L> (redraw screen) to also turn off search highlighting until the
-" next search
-nnoremap <C-L> :nohl<CR><C-L>
-
-"------------------------------------------------------------
+call plug#begin('~/.vim/plugged')
+Plug 'neoclide/coc.nvim'
+call plug#end()
